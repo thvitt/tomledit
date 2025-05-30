@@ -418,6 +418,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },
+    { name = "rich" },
     { name = "tomlkit" },
 ]
 
@@ -432,6 +433,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cyclopts", specifier = ">=3.16.2" },
+    { name = "rich", specifier = ">=14.0.0" },
     { name = "tomlkit", specifier = ">=0.13.2" },
 ]
 

@@ -1,5 +1,10 @@
 import pytest
-from tomledit.navigate import IntermediateNoMappingError, add_value, get_mapping, set_value
+from tomledit.navigate import (
+    IntermediateNoMappingError,
+    add_value,
+    get_mapping,
+    set_value,
+)
 
 
 def test_get_mapping_empty():
@@ -41,7 +46,7 @@ def test_get_mapping_existing_path():
 def test_get_mapping_non_mapping_type():
     root = {"a": "not_a_dict"}
     key = ["a", "b"]
-    with pytest.raises(IntermediateNoMappingError):  
+    with pytest.raises(IntermediateNoMappingError):
         get_mapping(root, key)
 
 
@@ -55,27 +60,31 @@ def test_get_mapping_non_existent_key():
     assert "y" in root["x"]
     assert isinstance(root["x"]["y"], dict)
 
+
 def test_set_value():
     root = {}
     key = ["a", "b", "c"]
     value = "test_value"
-    
+
     set_value(root, key, value)
-    
+
     assert root["a"]["b"]["c"] == value
-    
+
+
 def test_add_value_to_list():
     root = {"a": ["b", "c"]}
     add_value(root, ["a"], "d")
     assert root["a"] == ["b", "c", "d"]
-    
+
+
 def test_add_value_to_value():
     root = {"a": {"b": {"c": "existing_value"}}}
     key = ["a", "b", "c"]
     value = "new_value"
     add_value(root, key, value)
     assert root["a"]["b"]["c"] == ["existing_value", value]
-    
+
+
 def test_add_value_new_list():
     root = {}
     key = ["a", "b"]

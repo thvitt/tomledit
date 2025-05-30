@@ -1,9 +1,9 @@
-from typing import Annotated, Iterable, Mapping, MutableMapping, Type
+from typing import Annotated, Iterable
 import tomlkit
-import sys
 from cyclopts import App, Parameter
 from pathlib import Path
 import logging
+from rich.logging import RichHandler
 
 from tomledit.navigate import add_value, del_key, get_mapping, set_or_add, set_value
 
@@ -66,6 +66,7 @@ def main(
     file: Annotated[Path | None, Parameter(["-f", "--file"])] = None,
     find: Annotated[str, Parameter(["-F", "--find"])] = "pyproject.toml",
     prefix: Annotated[str | None, Parameter(["-p", "--prefix"])] = None,
+    verbose: Annotated[bool, Parameter(["-v", "--verbose"])] = False,
 ):
     """
     Edit a TOML file, by default `pyproject.toml`.
@@ -92,6 +93,11 @@ def main(
         find: if _file_ is not given, find a file with this name in the current directory or its parents.
         prefix: if present (e.g., tool.uv), all keys are below this prefix.
     """
+    logging.basicConfig(
+        level=logging.INFO if verbose else logging.WARNING,
+        handlers=[RichHandler(show_time=False)],
+        format="%(message)s",
+    )
     logger = logging.getLogger(__name__)
     mode_error = {
         "=": "Cannot set {key} to {value}: {reason}",
@@ -107,8 +113,10 @@ def main(
         if prefix is not None:
             prefix_ = parse_key(prefix)
             root = get_mapping(doc, prefix_)
+            logger.info("Editing %s, table %s", file, prefix)
         else:
             root = doc
+            logger.info("Editing %s", file)
 
         mode = "@"
         commands = list(args)
