@@ -10,6 +10,7 @@ from rich.logging import RichHandler
 from tomledit.navigate import add_value, del_key, get_mapping, set_or_add, set_value
 
 app = App(help_format="markdown", usage="Usage: te [OPTIONS] ARGS")
+logger = logging.getLogger(__name__)
 
 
 def find_in_parents(name: str) -> Path:
@@ -24,7 +25,8 @@ def find_in_parents(name: str) -> Path:
 
 
 class edit_toml:
-    def __init__(self, filename: str | Path | None) -> None:
+    def __init__(self, filename: str | Path | None, backup: bool = False) -> None:
+        self.backup = backup
         if filename is None:
             file = find_in_parents("pyproject.toml")
         elif not isinstance(filename, Path):
@@ -42,6 +44,12 @@ class edit_toml:
         return self.doc
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if self.backup and self.file.exists():
+            backup_file = self.file.with_suffix(self.file.suffix + "~")
+            if backup_file.exists():
+                backup_file.unlink()
+            self.file.rename(backup_file)
+            logger.info("Backup created at %s", backup_file)
         with self.file.open("w", encoding="utf-8") as f:
             tomlkit.dump(self.doc, f)
 
@@ -68,6 +76,7 @@ def main(  # noqa: PLR0912
     file: Annotated[Path | None, Parameter(["-f", "--file"])] = None,
     find: Annotated[str, Parameter(["-F", "--find"])] = "pyproject.toml",
     prefix: Annotated[str | None, Parameter(["-p", "--prefix"])] = None,
+    backup: Annotated[bool, Parameter(["-b", "--backup"])] = False,
     verbose: Annotated[bool, Parameter(["-v", "--verbose"])] = False,
 ):
     """
@@ -94,13 +103,14 @@ def main(  # noqa: PLR0912
         file: if present, the file on which to work.
         find: if _file_ is not given, find a file with this name in the current directory or its parents.
         prefix: if present (e.g., tool.uv), all keys are below this prefix.
+        backup: if true, create a backup of the TOML file before writing changes.
+        verbose: report on the operations performed
     """
     logging.basicConfig(
         level=logging.INFO if verbose else logging.WARNING,
         handlers=[RichHandler(show_time=False)],
         format="%(message)s",
     )
-    logger = logging.getLogger(__name__)
     mode_error = {
         "=": "Cannot set {key} to {value}: {reason}",
         "+": "Cannot append {value} to {key}: {reason}",
@@ -111,7 +121,7 @@ def main(  # noqa: PLR0912
     if file is None:
         file = find_in_parents(find)
 
-    with edit_toml(file) as doc:
+    with edit_toml(file, backup=backup) as doc:
         if prefix is not None:
             prefix_ = parse_key(prefix)
             root = get_mapping(doc, prefix_)

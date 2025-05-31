@@ -15,20 +15,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "ipython>=9.2.0",
-    "pre-commit>=4.2.0",
-    "pytest>=8.3.5",
-    "ruff>=0.11.10",
-]
-
-[tool.te]
-bla = "blubb"
-[tool.te.test]
-example = ["foo", "bar"]
+dev = ["ipython>=9.2.0", "pre-commit>=4.2.0", "pytest>=8.3.5", "ruff>=0.11.10"]
 
 [tool.ruff]
 fix = true
+
 [tool.ruff.lint]
 select = [
   "C4",
