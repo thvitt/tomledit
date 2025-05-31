@@ -5,11 +5,7 @@ description = "CLI TOML Manipulator"
 readme = "README.md"
 authors = [{ name = "Thorsten Vitt", email = "thorsten.vitt@uni-wuerzburg.de" }]
 requires-python = ">=3.13"
-dependencies = [
-    "cyclopts>=3.16.2",
- "rich>=14.0.0",
- "tomlkit>=0.13.2",
-]
+dependencies = ["cyclopts>=3.16.2", "rich>=14.0.0", "tomlkit>=0.13.2"]
 
 [project.scripts]
 te = "tomledit:app"
@@ -21,12 +17,30 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "ipython>=9.2.0",
- "pre-commit>=4.2.0",
- "pytest>=8.3.5",
- "ruff>=0.11.10",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "ruff>=0.11.10",
 ]
 
 [tool.te]
 bla = "blubb"
 [tool.te.test]
 example = ["foo", "bar"]
+
+[tool.ruff]
+fix = true
+[tool.ruff.lint]
+select = [
+  "C4",
+  "LOG",
+  "G",
+  "PT",
+  "SIM",
+  "PTH",
+  "UP",
+  "PLC",
+  "PLR",
+  "FURB",
+  "RUF",
+  "I",
+]

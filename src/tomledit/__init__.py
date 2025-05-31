@@ -1,8 +1,10 @@
-from typing import Annotated, Iterable
+import logging
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Annotated
+
 import tomlkit
 from cyclopts import App, Parameter
-from pathlib import Path
-import logging
 from rich.logging import RichHandler
 
 from tomledit.navigate import add_value, del_key, get_mapping, set_or_add, set_value
@@ -61,7 +63,7 @@ def parse_key(src: str):
 
 
 @app.default()
-def main(
+def main(  # noqa: PLR0912
     *args: Annotated[str, Parameter(allow_leading_hyphen=True, required=True)],
     file: Annotated[Path | None, Parameter(["-f", "--file"])] = None,
     find: Annotated[str, Parameter(["-F", "--find"])] = "pyproject.toml",

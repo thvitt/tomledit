@@ -1,7 +1,9 @@
-import re
-from typing import Any, MutableMapping, Sequence
-import tomlkit
 import logging
+import re
+from collections.abc import MutableMapping, Sequence
+from typing import Any
+
+import tomlkit
 
 logger = logging.getLogger(__name__)
 

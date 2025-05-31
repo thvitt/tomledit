@@ -1,4 +1,5 @@
 import pytest
+
 from tomledit.navigate import (
     IntermediateNoMappingError,
     add_value,
