@@ -90,12 +90,13 @@ def main(  # noqa: PLR0912
     until the next mode switch or the end of the arguments. The default mode is @ (auto). The modes
     work as follows:
 
-    | switch | mode | arguments     | description |
-    |--------|------|---------------|-------------|
-    | @      | auto | key value ... | If the key points to a list, the value is appended. Otherwise, the entry at the key is set to the value, replacing any existing value. |
-    | =      | set  | key value ... | The entry at the key is set to the value, replacing any existing value. |
-    | +      | add  | key value ... | If the key points to a list, the value is appended. If the key does not exist, it is created as a list with the value. If the key exists and is not a list, it is converted to a list and the value is appended. |
-    | -      | remove| key ...       | The entries at the given keys are removed. If the key points to a list, the value is removed from the list. |
+    | switch   | mode   | arguments           | description                                                                                                                                                                                                      |
+    | -------- | ------ | ---------------     | -------------                                                                                                                                                                                                    |
+    | @        | auto   | key value ...       | If the key points to a list, the value is appended. Otherwise, the entry at the key is set to the value, replacing any existing value.                                                                           |
+    | =        | set    | key value ...       | The entry at the key is set to the value, replacing any existing value.                                                                                                                                          |
+    | +        | add    | key value ...       | If the key points to a list, the value is appended. If the key does not exist, it is created as a list with the value. If the key exists and is not a list, it is converted to a list and the value is appended. |
+    | ++       | extend | key value value ... | Like add, but after one key all arguments are values up to the next mode switch
+    | -        | remove | key ...             | The entries at the given keys are removed. If the key points to a list, the value is removed from the list.                                                                                                      |
 
 
     Args:
@@ -114,9 +115,11 @@ def main(  # noqa: PLR0912
     mode_error = {
         "=": "Cannot set {key} to {value}: {reason}",
         "+": "Cannot append {value} to {key}: {reason}",
+        "++": "Cannot append {value} to {key}: {reason}",
         "-": "Cannot remove {key}: {reason}",
         "@": "Cannot set or append value {value} for key {key}: {reason}",
     }
+    modes = mode_error.keys()
 
     if file is None:
         file = find_in_parents(find)
@@ -134,13 +137,22 @@ def main(  # noqa: PLR0912
         commands = list(args)
         while commands:
             command = commands.pop(0)
-            if command in ("@", "=", "+", "-"):
+            if command in modes:
                 mode = command
                 continue
 
             key = parse_key(command)
             if mode == "-":
                 value = ""
+            elif mode == "++":
+                values = []
+                next_value = ""
+                while commands and (next_value := commands.pop(0)) not in modes:
+                    values.append(next_value)
+                for value in values:
+                    add_value(root, key, value)
+                if next_value in modes:
+                    commands.insert(0, next_value)
             elif commands:
                 value = commands.pop(0)
             else:

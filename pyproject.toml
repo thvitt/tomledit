@@ -1,6 +1,6 @@
 [project]
 name = "tomledit"
-version = "0.1.0"
+version = "0.2.0"
 description = "CLI TOML Manipulator"
 readme = "README.md"
 authors = [{ name = "Thorsten Vitt", email = "thorsten.vitt@uni-wuerzburg.de" }]
